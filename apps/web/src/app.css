@@ -1,0 +1,40 @@
+/* Tailwind v4 entry: theme tokens only. All styling lives in utility classes in the markup. */
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Lilita One', 'Arial Rounded MT Bold', Impact, sans-serif;
+  --font-body: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+
+  --color-bg: #0f0a18;
+  --color-fg: #fff6ea;
+  --color-muted: #b9a8d6;
+  --color-ink: #1a0f26;
+  --color-pink: #ff4fb0;
+  --color-gold: #ffd23f;
+  --color-gold-hi: #ffe36e;
+  --color-hp-lo: #ff4d4d;
+  --color-hp-lo-hi: #ff8a7a;
+  --color-foe: #7fd8ff;
+  --color-frame: #f3dcc0;
+  --color-panel: #1c1230;
+  --color-line: #352450;
+  --color-stage: #1a0f2a;
+  --color-portrait: #2a1a3a;
+  --color-card: #26183f;
+  --color-chip: #22163a;
+  --color-chip-edge: #3b2a5c;
+  --color-banner-edge: #5b1f86;
+  --color-track: #3a1020;
+
+  --animate-pop: pop 0.3s ease-out;
+  @keyframes pop {
+    from {
+      transform: translateY(-6px);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+}

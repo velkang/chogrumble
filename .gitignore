@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.cache/
+.wrangler/
+.dev.vars
+*.log
+.DS_Store
+
+.claude/
+chog-arena/
+uploads/
+game/
+/*.glb
+
+scripts/

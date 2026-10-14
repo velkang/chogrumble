@@ -1,0 +1,32 @@
+{
+  "name": "chog-rumble",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.1.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @chog/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "deploy": "pnpm --filter @chog/web deploy"
+  },
+  "devDependencies": {
+    "@chog/content": "workspace:*",
+    "@chog/sim": "workspace:*",
+    "@eslint/js": "^10.0.1",
+    "@gltf-transform/cli": "^4.5.1",
+    "@types/node": "^22.20.5",
+    "@vitest/coverage-v8": "^5.0.4",
+    "eslint": "^10.12.0",
+    "globals": "^17.13.0",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.2",
+    "vitest": "^5.0.4"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@chog/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc -p tsconfig.json",
+    "deploy": "vite build && wrangler deploy"
+  },
+  "dependencies": {
+    "three": "0.160.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/three": "0.160.0",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.4",
+    "wrangler": "^4.150.0"
+  }
+}

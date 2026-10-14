@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en" class="bg-bg">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <title>Chog Sack Rumble</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap"
+    />
+  </head>
+  <body class="m-0 bg-bg p-4 font-body text-fg [color-scheme:dark]">
+    <div class="mx-auto grid max-w-[1280px] gap-3">
+      <section
+        id="stage"
+        aria-label="3D fight inside the giant Chog's sack"
+        class="relative aspect-video w-full overflow-hidden rounded-[14px] bg-stage [&>canvas]:block [&>canvas]:size-full"
+      >
+        <div
+          id="loading"
+          class="absolute inset-0 grid place-items-center p-5 text-center font-extrabold text-muted"
+        >
+          Loading the sack…
+        </div>
+        <div
+          id="hud"
+          class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-400 data-on:opacity-100"
+        >
+          <div class="absolute top-[3%] left-[2.6%] flex w-[43%] items-center gap-[1.4%]">
+            <div
+              class="aspect-square w-[21%] flex-none overflow-hidden rounded-[10%] border-3 border-frame bg-portrait shadow-[0_4px_10px_rgba(0,0,0,.5)] max-sm:border-2"
+            >
+              <img id="pa" alt="" class="block size-full object-cover" />
+            </div>
+            <div class="grid min-w-0 flex-1 gap-[.3em]">
+              <div
+                class="flex h-[clamp(10px,2.1vw,22px)] overflow-hidden rounded-full border-3 border-frame bg-track shadow-[0_3px_8px_rgba(0,0,0,.45)] max-sm:border-2"
+              >
+                <div
+                  id="hpa"
+                  class="h-full w-full bg-linear-to-b from-gold-hi to-gold transition-[width] duration-500 ease-[cubic-bezier(.3,1.3,.5,1)] data-low:from-hp-lo-hi data-low:to-hp-lo"
+                ></div>
+              </div>
+              <div
+                class="font-display text-[clamp(14px,2.4vw,30px)] tracking-[.5px] [text-shadow:0_2px_0_#000,0_0_8px_rgba(0,0,0,.6)]"
+              >
+                <span id="na"></span>
+                <span
+                  id="hpna"
+                  class="text-[clamp(11px,1.6vw,20px)] tabular-nums [text-shadow:0_2px_0_#000]"
+                  >100</span
+                >
+              </div>
+            </div>
+          </div>
+          <div
+            class="absolute top-[6%] left-1/2 -translate-x-1/2 font-display text-[clamp(16px,3vw,38px)] text-gold [text-shadow:0_3px_0_#000]"
+          >
+            VS
+          </div>
+          <div
+            class="absolute top-[3%] right-[2.6%] flex w-[43%] flex-row-reverse items-center gap-[1.4%] text-right"
+          >
+            <div
+              class="aspect-square w-[21%] flex-none overflow-hidden rounded-[10%] border-3 border-frame bg-portrait shadow-[0_4px_10px_rgba(0,0,0,.5)] max-sm:border-2"
+            >
+              <img id="pb" alt="" class="block size-full object-cover" />
+            </div>
+            <div class="grid min-w-0 flex-1 gap-[.3em]">
+              <div
+                class="flex h-[clamp(10px,2.1vw,22px)] flex-row-reverse overflow-hidden rounded-full border-3 border-frame bg-track shadow-[0_3px_8px_rgba(0,0,0,.45)] max-sm:border-2"
+              >
+                <div
+                  id="hpb"
+                  class="h-full w-full bg-linear-to-b from-gold-hi to-gold transition-[width] duration-500 ease-[cubic-bezier(.3,1.3,.5,1)] data-low:from-hp-lo-hi data-low:to-hp-lo"
+                ></div>
+              </div>
+              <div
+                class="font-display text-[clamp(14px,2.4vw,30px)] tracking-[.5px] [text-shadow:0_2px_0_#000,0_0_8px_rgba(0,0,0,.6)]"
+              >
+                <span
+                  id="hpnb"
+                  class="text-[clamp(11px,1.6vw,20px)] tabular-nums [text-shadow:0_2px_0_#000]"
+                  >100</span
+                >
+                <span id="nb"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          id="bubble"
+          class="absolute top-[12%] left-[9%] scale-30 -rotate-4 rounded-[50%] border-4 border-[#111] bg-white px-[.7em] py-[.35em] font-display text-[clamp(18px,4vw,54px)] text-[#111] opacity-0 transition-all duration-300 ease-[cubic-bezier(.3,1.6,.5,1)] after:absolute after:right-[12%] after:-bottom-[18px] after:rotate-[-25deg] after:border-[12px] after:border-t-[20px] after:border-transparent after:border-t-[#111] after:content-[''] data-on:scale-100 data-on:opacity-100"
+        >
+          IN THE BAG.
+        </div>
+        <div
+          id="banner"
+          class="absolute top-[30%] left-1/2 -translate-1/2 scale-40 -rotate-6 border-5 border-banner-edge bg-pink px-[.4em] pt-[.05em] pb-[.1em] font-display text-[clamp(30px,8vw,104px)] tracking-[1px] whitespace-nowrap text-fg opacity-0 shadow-[8px_8px_0_var(--color-banner-edge)] transition-all duration-350 ease-[cubic-bezier(.3,1.6,.5,1)] [paint-order:stroke_fill] [-webkit-text-stroke:2px_var(--color-banner-edge)] data-gold:bg-gold data-gold:text-[#3a1a00] data-gold:[-webkit-text-stroke:0] data-on:scale-100 data-on:opacity-100"
+        ></div>
+      </section>
+
+      <section
+        aria-label="Battle"
+        class="grid min-w-0 gap-3.5 rounded-[14px] border border-line bg-panel p-4"
+      >
+        <div id="pickView" class="grid gap-3.5">
+          <h2 class="m-0 font-display text-[clamp(22px,3vw,30px)] font-normal">
+            Pick your fighter
+          </h2>
+          <div class="flex flex-wrap items-stretch gap-4">
+            <button
+              id="own"
+              type="button"
+              class="grid cursor-pointer content-center justify-items-start gap-1 rounded-[14px] bg-pink px-5 py-4 text-left text-lg font-extrabold text-ink focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-fg"
+            >
+              <span>Use my Chog</span>
+              <small class="text-[13px] font-semibold opacity-80">Connect wallet</small>
+            </button>
+            <div class="grid min-w-0 flex-1 gap-2">
+              <p class="m-0 text-base font-extrabold">No Chog? Lend a Chog for free</p>
+              <div class="flex flex-wrap gap-2.5">
+                <button
+                  id="lendA"
+                  type="button"
+                  class="flex cursor-pointer items-center gap-3 rounded-[14px] border-2 border-line bg-card py-2 pr-4 pl-2 text-left font-extrabold text-fg hover:border-pink focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-fg"
+                >
+                  <img
+                    id="la"
+                    alt=""
+                    class="size-16 rounded-[10px] border-2 border-frame bg-portrait"
+                  />
+                  <span class="grid gap-0.5 text-[17px]">
+                    <b>TISM Chog</b>
+                    <small class="text-[13px] font-semibold opacity-80"
+                      >Laser eyes, nut shots</small
+                    >
+                  </span>
+                </button>
+                <button
+                  id="lendB"
+                  type="button"
+                  class="flex cursor-pointer items-center gap-3 rounded-[14px] border-2 border-line bg-card py-2 pr-4 pl-2 text-left font-extrabold text-fg hover:border-pink focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-fg"
+                >
+                  <img
+                    id="lb"
+                    alt=""
+                    class="size-16 rounded-[10px] border-2 border-frame bg-portrait"
+                  />
+                  <span class="grid gap-0.5 text-[17px]">
+                    <b>Gum Chog</b>
+                    <small class="text-[13px] font-semibold opacity-80">Bubblegum cannon</small>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <p id="ownNote" hidden class="m-0 text-sm text-muted">
+            Wallet connect comes in the full build. Lend a Chog to play now.
+          </p>
+        </div>
+        <div id="battleView" hidden>
+          <ol id="feed" aria-live="polite" class="m-0 grid min-h-[9.5em] list-none gap-2 p-0"></ol>
+          <div class="mt-3.5 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
+            <div class="grid min-w-0 gap-1.5">
+              <span class="text-xs font-extrabold tracking-[.08em] text-muted uppercase"
+                >Your next move</span
+              >
+              <div id="moves" class="flex flex-wrap gap-2"></div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                id="meddle"
+                type="button"
+                class="cursor-pointer rounded-full border-2 border-pink bg-transparent px-4 py-2 font-extrabold text-fg focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-fg disabled:cursor-default disabled:opacity-45"
+              >
+                Make the Chog meddle
+              </button>
+              <button
+                id="replay"
+                type="button"
+                class="cursor-pointer rounded-full bg-pink px-4 py-2 font-extrabold text-ink focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-fg"
+              >
+                New fight
+              </button>
+              <button
+                id="change"
+                type="button"
+                class="cursor-pointer rounded-full border-2 border-pink bg-transparent px-4 py-2 font-extrabold text-fg focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-fg"
+              >
+                Change fighter
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="flex flex-wrap items-center justify-between gap-x-[18px] gap-y-2.5">
+        <div class="grid gap-1.5">
+          <h1 class="m-0 font-display text-[clamp(22px,3.4vw,32px)] font-normal">
+            Chog <span class="text-pink">Sack</span> Rumble
+          </h1>
+          <p class="m-0 max-w-[70ch] text-sm text-muted">
+            Your Chog is the arena. It stuffs two fighters in its sack, the floor is built from its
+            traits, and it peers in and meddles.
+          </p>
+          <div aria-label="Arena traits" class="flex flex-wrap gap-1.5">
+            <span
+              id="cHat"
+              class="rounded-full border border-chip-edge bg-chip px-2.5 py-[5px] text-xs font-extrabold text-muted transition-all duration-250 data-lit:border-pink data-lit:bg-pink data-lit:text-ink"
+              >Bucket hat: high ground</span
+            >
+            <span
+              id="cGum"
+              class="rounded-full border border-chip-edge bg-chip px-2.5 py-[5px] text-xs font-extrabold text-muted transition-all duration-250 data-lit:border-pink data-lit:bg-pink data-lit:text-ink"
+              >Bubblegum: sticky floor</span
+            >
+            <span
+              id="cHeart"
+              class="rounded-full border border-chip-edge bg-chip px-2.5 py-[5px] text-xs font-extrabold text-muted transition-all duration-250 data-lit:border-pink data-lit:bg-pink data-lit:text-ink"
+              >Heart eyes: love launch pads</span
+            >
+            <span
+              id="cHand"
+              class="rounded-full border border-chip-edge bg-chip px-2.5 py-[5px] text-xs font-extrabold text-muted transition-all duration-250 data-lit:border-pink data-lit:bg-pink data-lit:text-ink"
+              >Big paw: plucks the loser</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
