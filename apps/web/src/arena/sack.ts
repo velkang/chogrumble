@@ -82,7 +82,7 @@ function ropeTexture(): CanvasTexture {
 }
 
 /** Two twisted strands around the sack opening. */
-export function addRope(scene: Scene, rim: Rim): Group {
+export function addRope(scene: Scene, rim: Rim, light = false): Group {
   const map = ropeTexture();
   const rope = new Group();
   const ropeMat = new MeshStandardMaterial({ map, roughness: 0.9 });
@@ -95,7 +95,7 @@ export function addRope(scene: Scene, rim: Rim): Group {
       pts.push(new Vector3(Math.cos(a) * r, Math.sin(tw) * 0.32, Math.sin(a) * r));
     }
     const tube = new Mesh(
-      new TubeGeometry(new CatmullRomCurve3(pts, true), 800, 0.42, 10, true),
+      new TubeGeometry(new CatmullRomCurve3(pts, true), light ? 360 : 800, 0.42, light ? 6 : 10, true),
       ropeMat,
     );
     tube.castShadow = true;

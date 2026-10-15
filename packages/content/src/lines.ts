@@ -96,6 +96,12 @@ export const LINES = {
     '{b} slips out of the way like a greased Chog.',
     '{a} whiffs so hard they spin around twice.',
   ],
+  block: [
+    '{b} blocks {a} with both paws.',
+    '{b} tanks it. {a} looks annoyed.',
+    '{a} swings, {b} shrugs it off.',
+    '{b} puts the guard up. Nothing gets through.',
+  ],
   crit: ['Critical hit!', 'Massive damage!', 'That one left a mark!'],
   clinging: [
     '{b} is hanging on by a single hair.',

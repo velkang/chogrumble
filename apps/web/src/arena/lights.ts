@@ -10,9 +10,9 @@ import {
   SpotLight,
 } from 'three';
 import type { Scene, Texture } from 'three';
-import { RIM_Y } from './constants';
+import { ARENA_SCALE, RIM_Y } from './constants';
 
-export function addLights(scene: Scene): void {
+export function addLights(scene: Scene): SpotLight {
   scene.add(new HemisphereLight(0xffd8c0, 0x4a2060, 1.3));
   const sun = new SpotLight(0xffd6a0, 900, 80, 0.55, 0.6, 1.6);
   sun.position.set(3, RIM_Y + 26, 6);
@@ -29,6 +29,7 @@ export function addLights(scene: Scene): void {
   const rimLight = new PointLight(0xff8ad0, 40, 30, 1.6);
   rimLight.position.set(-9, 5, -4);
   scene.add(rimLight);
+  return sun;
 }
 
 const MOTE_COUNT = 300;
@@ -36,7 +37,7 @@ const MOTE_COUNT = 300;
 export function addMotes(scene: Scene, glow: Texture): Points {
   const geometry = new BufferGeometry();
   const xyz = Array.from({ length: MOTE_COUNT * 3 }, (_, i) =>
-    i % 3 === 1 ? Math.random() * RIM_Y : (Math.random() - 0.5) * 18,
+    i % 3 === 1 ? Math.random() * RIM_Y : (Math.random() - 0.5) * 18 * ARENA_SCALE,
   );
   const motes = new Points(
     geometry.setAttribute('position', new Float32BufferAttribute(xyz, 3)),

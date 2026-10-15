@@ -25,6 +25,8 @@ export interface AttackHit {
   dmg: number;
   crit: boolean;
   dodged: boolean;
+  /** Live matches: the target guarded instead of dodging (dmg 0). */
+  blocked?: boolean;
   hpAfter: number;
 }
 
@@ -53,6 +55,12 @@ export type MatchEvent = Timed &
   (
     | { type: 'drop'; ids: string[] }
     | { type: 'fight'; a: string; b: string; hits: AttackHit[] }
+    /** Live matches: a Chog starts a swing that lands at `landsAt` (outcome decided then). */
+    | { type: 'swing'; attacker: string; target: string; move: MoveKey; landsAt: number }
+    /** Live matches: the swing lands; `hits` holds the blow (and a headbutt's recoil). */
+    | { type: 'strike'; hits: AttackHit[] }
+    /** Live matches: the player dodge-rolls. */
+    | { type: 'roll'; id: string }
     | { type: 'brawl'; ids: string[]; hits: AttackHit[] }
     | { type: 'mishap'; kind: MishapKind; hits: EnvHit[] }
     | { type: 'meddle'; kind: MeddleKind; hits: EnvHit[] }

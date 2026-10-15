@@ -27,18 +27,27 @@ function stepIdleMotion(f: Chog, dt: number): void {
   f.phase += dt * (f.walking ? WALK_RATE : guarding ? GUARD_RATE : IDLE_RATE);
   const s = Math.sin(f.phase);
   if (f.walking) {
-    f.B.legL.rotation.x += s * 0.7 * f.walking;
-    f.B.legR.rotation.x -= s * 0.7 * f.walking;
-    f.B.armL.rotation.x -= s * 0.5 * f.walking;
-    f.B.armR.rotation.x += s * 0.5 * f.walking;
-    f.B.hips.position.y = 0.14 + Math.abs(s) * 0.025 * f.walking;
+    // a bouncy hop-run: big leg swing, pumping arms, leaning into it
+    const w = f.walking;
+    f.B.legL.rotation.x += s * 0.85 * w;
+    f.B.legR.rotation.x -= s * 0.85 * w;
+    f.B.armL.rotation.x -= s * 0.8 * w;
+    f.B.armR.rotation.x += s * 0.8 * w;
+    f.B.spine.rotation.x += 0.22 * w;
+    f.B.spine.rotation.z += Math.cos(f.phase) * 0.06 * w;
+    f.B.hips.position.y = 0.14 + Math.abs(s) * 0.06 * w;
+    f.body.scale.y = 1 + Math.abs(s) * 0.05 * w;
     return;
   }
   // fighters keep bouncing on their toes in guard, so nobody freezes between beats
   const g = guarding ? 1 : 0;
-  f.B.hips.position.y = 0.14 + Math.abs(Math.sin(f.phase * 1.6)) * 0.03 * g;
-  f.B.spine.rotation.z += Math.sin(f.phase * 0.8) * 0.04 * g * f.bob;
-  f.B.spine.scale.y = 1 + s * 0.015 * f.bob;
+  f.body.scale.y += (1 - f.body.scale.y) * Math.min(1, dt * 10);
+  f.B.hips.position.y = 0.14 + Math.abs(Math.sin(f.phase * 1.6)) * 0.035 * g;
+  f.B.spine.rotation.z += Math.sin(f.phase * 0.8) * 0.05 * g * f.bob;
+  f.B.spine.rotation.y += Math.sin(f.phase * 0.5) * 0.08 * g * f.bob;
+  f.B.head.rotation.y += Math.sin(f.phase * 0.37) * 0.12 * (1 - g) * f.bob;
+  // breathing
+  f.B.spine.scale.y = 1 + s * 0.02 * f.bob;
 }
 
 /** Per-frame update: joints follow their target pose on an underdamped spring, plus idle motion. */

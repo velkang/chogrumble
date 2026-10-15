@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./chogs": "./src/chogs-entry.ts",
     "./balance": "./src/balance.ts"
   },
   "scripts": {

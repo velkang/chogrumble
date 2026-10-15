@@ -8,14 +8,16 @@ export type Pose = Readonly<Record<BoneName, Vec3>>;
 const z: Vec3 = [0, 0, 0];
 
 export const POSES = {
-  idle: { armL: [0, 0, -1.15], armR: [0, 0, 1.15], legL: z, legR: z, spine: z, head: z, hips: z },
+  // arms rest down by the sides
+  idle: { armL: [0, 0, -1.38], armR: [0, 0, 1.38], legL: z, legR: z, spine: z, head: z, hips: z },
+  // a tighter boxing guard: fists forward and low, weight on the front foot
   guard: {
-    armL: [0, -1.0, -0.55],
-    armR: [0, 1.0, 0.55],
-    legL: [-0.15, 0, 0],
-    legR: [0.2, 0, 0],
-    spine: [0.12, 0, 0],
-    head: [0.05, 0, 0],
+    armL: [0, -1.15, -0.78],
+    armR: [0, 1.15, 0.78],
+    legL: [-0.2, 0, 0.04],
+    legR: [0.25, 0, -0.04],
+    spine: [0.16, 0, 0],
+    head: [0.02, 0, 0],
     hips: z,
   },
   punchR: {
@@ -136,6 +138,34 @@ export const POSES = {
     hips: z,
   },
   peer: { armL: [0, 0, -1.2], armR: [0, 0, 1.2], legL: z, legR: z, spine: z, head: z, hips: z },
+  // taunts between fights
+  point: {
+    armR: [0, 0.9, -0.55],
+    armL: [0, 0, -1.3],
+    spine: [-0.05, -0.25, 0],
+    head: [0.05, 0.2, 0.1],
+    legL: [0.1, 0, 0],
+    legR: [-0.1, 0, 0],
+    hips: z,
+  },
+  drum: {
+    armL: [0, -1.35, -1.0],
+    armR: [0, 1.35, 1.0],
+    spine: [-0.2, 0, 0],
+    head: [-0.25, 0, 0],
+    legL: [0, 0, 0.15],
+    legR: [0, 0, -0.15],
+    hips: z,
+  },
+  flex: {
+    armL: [0, -0.3, 0.35],
+    armR: [0, 0.3, -0.35],
+    spine: [-0.12, 0, 0],
+    head: [-0.15, 0, 0],
+    legL: [0, 0, 0.18],
+    legR: [0, 0, -0.18],
+    hips: z,
+  },
 } as const satisfies Record<string, Pose>;
 
 export type PoseName = keyof typeof POSES;

@@ -3,6 +3,7 @@
 import { createRng } from '@chog/sim';
 import type { AttackHit, EnvHit, MatchEvent, Timeline } from '@chog/sim';
 import { LINES } from './lines';
+import { hitTime } from './timing';
 import type { LineKey } from './lines';
 
 export type FeedKind = 'info' | 'hit' | 'arena' | 'ko' | 'win';
@@ -71,8 +72,6 @@ function choose(ctx: Ctx, key: LineKey, salt: string, v: Vars): string {
   return fill(ctx, bank[start]!, v);
 }
 
-const hitTime = (e: MatchEvent, i: number, n: number) =>
-  e.at + Math.floor((e.dur * (i + 1)) / (n + 1));
 
 function attackLine(
   ctx: Ctx,
@@ -84,7 +83,7 @@ function attackLine(
 ): FeedLine {
   const salt = `${idx}:${i}`;
   const v: Vars = { a: h.attacker, b: h.target };
-  let text = choose(ctx, h.dodged ? 'dodge' : h.move, salt, v);
+  let text = choose(ctx, h.blocked ? 'block' : h.dodged ? 'dodge' : h.move, salt, v);
   if (h.crit) text = `${choose(ctx, 'crit', `${salt}:crit`, v)} ${text}`;
   if (!h.dodged && h.hpAfter === 1 && h.dmg > 1)
     text = `${text} ${choose(ctx, 'clinging', `${salt}:cling`, v)}`;
@@ -95,7 +94,7 @@ function attackLine(
     kind: 'hit' as const,
     ids: [...new Set([h.attacker, h.target])],
   };
-  return h.dodged ? base : { ...base, dmg: h.dmg, crit: h.crit };
+  return h.dodged || h.blocked ? base : { ...base, dmg: h.dmg, crit: h.crit };
 }
 
 function envLine(
@@ -170,6 +169,12 @@ function emitEvent(ctx: Ctx, e: MatchEvent, idx: number): void {
       return emit(line('revive', { b: e.id }, 'arena', [e.id]));
     case 'winner':
       return emit(line('winner', { a: e.id }, 'win', [e.id]));
+    case 'strike':
+      return attacks(e.hits);
+    case 'swing':
+    case 'roll':
+      // the strike that follows a swing gets the line; a roll speaks for itself
+      return;
   }
 }
 
@@ -177,4 +182,16 @@ export function formatTimeline(t: Timeline): FeedLine[] {
   const ctx: Ctx = { seed: t.seed, names: new Map(t.roster.map((r) => [r.id, r.name])), out: [] };
   t.events.forEach((e, idx) => emitEvent(ctx, e, idx));
   return ctx.out;
+}
+
+/** Formats a live match's events as they arrive; `add` returns only the new lines. */
+export function createFeedFormatter(seed: string, roster: readonly Timeline['roster'][number][]): { add(e: MatchEvent, index: number): FeedLine[] } {
+  const ctx: Ctx = { seed, names: new Map(roster.map((r) => [r.id, r.name])), out: [] };
+  return {
+    add(e, index) {
+      const before = ctx.out.length;
+      emitEvent(ctx, e, index);
+      return ctx.out.slice(before);
+    },
+  };
 }

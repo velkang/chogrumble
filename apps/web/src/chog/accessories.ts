@@ -8,8 +8,8 @@ export type HatKind = 'cap' | 'bucket';
 /** Turns the tilted bucket-hat model upright. */
 export const BUCKET_UP = new Vector3(-0.364, 0.861, -0.356).normalize();
 
-export function hatOn(f: Chog, kind: HatKind, models: Models): Group {
-  const src = kind === 'cap' ? models.cap : models.bucket;
+export function hatOn(f: Chog, kind: HatKind, models: Models, light = false): Group {
+  const src = kind === 'cap' ? (light ? models.capLod : models.cap) : light ? models.bucketLod : models.bucket;
   const h = new Mesh(src.geometry, src.material);
   h.castShadow = true;
   const holder = new Group();

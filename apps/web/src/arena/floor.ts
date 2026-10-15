@@ -2,6 +2,7 @@
 import { CircleGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three';
 import type { Scene } from 'three';
 import { canvasTex } from '../engine/textures';
+import { ARENA_SCALE } from './constants';
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -75,8 +76,8 @@ export function addFloor(scene: Scene): Mesh {
   const floorMat = new MeshStandardMaterial({ map: floorTex, roughness: 1 });
   const floor = new Mesh(new CircleGeometry(1, 64), floorMat);
   floor.rotation.x = -Math.PI / 2;
-  floor.scale.set(11, 9.6, 1);
-  floor.position.set(1.0, 0.04, 0.0);
+  floor.scale.set(11 * ARENA_SCALE, 9.6 * ARENA_SCALE, 1);
+  floor.position.set(1.0 * ARENA_SCALE, 0.04, 0.0);
   floor.receiveShadow = true;
   scene.add(floor);
   return floor;
@@ -96,9 +97,9 @@ export function addBlush(scene: Scene): void {
     depthWrite: false,
   });
   for (const [x, z, r] of BLUSH_SPOTS) {
-    const d = new Mesh(new CircleGeometry(r, 48), blushMat);
+    const d = new Mesh(new CircleGeometry(r * ARENA_SCALE, 48), blushMat);
     d.rotation.x = -Math.PI / 2;
-    d.position.set(x, 0.1, z);
+    d.position.set(x * ARENA_SCALE, 0.1, z * ARENA_SCALE);
     scene.add(d);
   }
 }

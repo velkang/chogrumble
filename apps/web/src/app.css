@@ -1,6 +1,9 @@
 /* Tailwind v4 entry: theme tokens only. All styling lives in utility classes in the markup. */
 @import 'tailwindcss';
 
+/* phones held sideways: short screens get a slimmer HUD */
+@custom-variant short (@media (max-height: 520px));
+
 @theme {
   --font-display: 'Lilita One', 'Arial Rounded MT Bold', Impact, sans-serif;
   --font-body: 'Nunito', 'Segoe UI', system-ui, sans-serif;
@@ -27,6 +30,17 @@
   --color-track: #3a1020;
 
   --animate-pop: pop 0.3s ease-out;
+  --animate-banner: banner-in 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+  @keyframes banner-in {
+    from {
+      scale: 0.4;
+      opacity: 0;
+    }
+    to {
+      scale: 1;
+      opacity: 1;
+    }
+  }
   @keyframes pop {
     from {
       transform: translateY(-6px);

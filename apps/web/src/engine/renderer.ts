@@ -18,9 +18,9 @@ export interface View {
 }
 
 /** `capture` keeps the drawing buffer so frames can be read back for recording. */
-export function createView(stage: HTMLElement, capture: boolean): View {
+export function createView(stage: HTMLElement, capture: boolean, maxPixelRatio: number): View {
   const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: capture });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, maxPixelRatio));
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.35;

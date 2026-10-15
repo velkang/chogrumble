@@ -16,6 +16,7 @@ import {
 import type { Scene } from 'three';
 import type { Models } from '../engine/assets';
 import { BUCKET_UP } from '../chog/accessories';
+import { ARENA_SCALE } from './constants';
 
 export interface Platform {
   group: Group;
@@ -31,9 +32,10 @@ export interface HeartPad {
 }
 
 /** The bucket hat stood upright and scaled up into a platform. */
-export function addPlatform(scene: Scene, models: Models): Platform {
+export function addPlatform(scene: Scene, models: Models, light = false): Platform {
   const group = new Group();
-  const hatMesh = new Mesh(models.bucket.geometry, models.bucket.material);
+  const hat = light ? models.bucketLod : models.bucket;
+  const hatMesh = new Mesh(hat.geometry, hat.material);
   hatMesh.castShadow = hatMesh.receiveShadow = true;
   hatMesh.quaternion.copy(new Quaternion().setFromUnitVectors(BUCKET_UP, new Vector3(0, 1, 0)));
   const inner = new Group();
@@ -42,7 +44,7 @@ export function addPlatform(scene: Scene, models: Models): Platform {
   hatMesh.position.set(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2);
   inner.scale.set(5.6, 2.4, 5.6);
   group.add(inner);
-  group.position.set(-3.4, 0, -2.6);
+  group.position.set(-3.4 * ARENA_SCALE, 0, -2.6 * ARENA_SCALE);
   scene.add(group);
   group.updateMatrixWorld(true);
   const ray = new Raycaster(
@@ -72,8 +74,8 @@ export function addGumPuddle(scene: Scene): Mesh {
     p.setXYZ(i, x * r, p.getY(i), z * r);
   }
   blob.geometry.computeVertexNormals();
-  blob.scale.set(1.9, 0.14, 1.4);
-  blob.position.set(2.4, 0.06, 2.4);
+  blob.scale.set(1.9 * ARENA_SCALE, 0.14, 1.4 * ARENA_SCALE);
+  blob.position.set(2.4 * ARENA_SCALE, 0.06, 2.4 * ARENA_SCALE);
   blob.receiveShadow = true;
   scene.add(blob);
   return blob;
@@ -130,11 +132,11 @@ export function addHeartPads(scene: Scene): HeartPad[] {
     g.add(base, pad);
     g.scale.setScalar(s);
     g.rotation.y = ry;
-    g.position.set(x, 0.08, z);
+    g.position.set(x * ARENA_SCALE, 0.08, z * ARENA_SCALE);
     const light = new PointLight(0xff3050, 6, 7, 2);
     light.position.set(0, 1, 0);
     g.add(light);
     scene.add(g);
-    return { g, pm, light, pos: new Vector3(x, 0.3, z) };
+    return { g, pm, light, pos: new Vector3(x * ARENA_SCALE, 0.3, z * ARENA_SCALE) };
   });
 }

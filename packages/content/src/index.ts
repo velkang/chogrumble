@@ -1,7 +1,7 @@
-export { CHOGS, CHOG_CONTRACT, chogByToken, toFighter, traitCoverage } from './chogs';
-export type { Chog } from './chogs';
-export { MIN_ROSTER, MAX_ROSTER, buildRoster, pickHouseChogs } from './roster';
+// Light entry: feed lines and formatting. The full Chog list lives in '@chog/content/chogs'
+// so apps can load it separately.
 export { LINES } from './lines';
 export type { LineKey } from './lines';
-export { formatTimeline, ordinal } from './feed-format';
+export { createFeedFormatter, formatTimeline, ordinal } from './feed-format';
 export type { FeedKind, FeedLine } from './feed-format';
+export { hitTime } from './timing';

@@ -1,5 +1,7 @@
 export { SIM_VERSION } from './version';
 export { simulate, MIN_FIGHTERS, MAX_FIGHTERS } from './match';
+export { createLiveMatch, TICK_MS } from './live/live-match';
+export type { LiveInput, LiveMatch, PlayerView } from './live/live-match';
 export { createRng } from './rng';
 export type { Rng } from './rng';
 export { statsFromTraits, BASE_STATS, STAT_CAPS } from './stats';

@@ -2,5 +2,7 @@ packages:
   - apps/*
   - packages/*
 allowBuilds:
+  # only a version-check postinstall; not needed
+  '@reown/appkit': false
   esbuild: true
   workerd: true

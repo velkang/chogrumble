@@ -25,6 +25,8 @@ export interface State {
   /** Eliminated ids, first out first. */
   out: readonly string[];
   revives: number;
+  /** Extra damage multiplier in percent; live matches swing far more often, so they hit softer. */
+  damagePct?: number;
 }
 
 export function initialState(roster: readonly FighterSpec[]): State {
@@ -56,7 +58,8 @@ export function patch(s: State, id: string, changes: Partial<Fighter>): State {
 /** Current damage multiplier in percent. */
 export const scaleNow = (s: State) => {
   const up = standing(s).length;
-  return damageScale({ urgency: urgency(s.t, up, s.n), t: s.t, standing: up });
+  const base = damageScale({ urgency: urgency(s.t, up, s.n), t: s.t, standing: up });
+  return Math.floor((base * (s.damagePct ?? 100)) / 100);
 };
 
 /** Applies damage; returns the new state and the HP left (0 only if an elimination is allowed). */
