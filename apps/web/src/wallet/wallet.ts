@@ -29,7 +29,7 @@ export function createWallet(projectId: string): Wallet {
     projectId,
     metadata: {
       name: 'Chog Sack Rumble',
-      description: 'Twelve Chogs, one sack, last one standing wins.',
+      description: 'Two Chogs, one sack. A 1v1 arcade fighter.',
       url: location.origin,
       icons: [`${location.origin}/favicon.ico`],
     },

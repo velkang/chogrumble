@@ -1,5 +1,5 @@
 // The sack model is a thick-walled bag: its inner floor sits 2.5 units up, so drop it to put that floor at y = 0.
-/** Widens the whole arena floor (not its height): sack, floor, hazards, bounds and camera limits. */
+/** Widens the whole arena floor (not its height): sack, floor and surrounding scenery. */
 export const ARENA_SCALE = 1.3;
 export const SACK_SCALE_XZ = 28 * ARENA_SCALE;
 export const SACK_SCALE_Y = 18;

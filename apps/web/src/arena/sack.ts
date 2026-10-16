@@ -45,7 +45,8 @@ export function addSack(scene: Scene, models: Models, weaveGrey: Texture): Rim {
   const src = models.sack.material as MeshStandardMaterial;
   const sackMat = src.clone();
   sackMat.side = DoubleSide;
-  sackMat.clippingPlanes = [new Plane(new Vector3(0, -1, 0), RIM_Y)];
+  // Cut the neck and front wall away so the side-view camera sees the fighting lane.
+  sackMat.clippingPlanes = [new Plane(new Vector3(0, -1, 0), RIM_Y), new Plane(new Vector3(0, 0, -1), 2.8)];
   sackMat.color = new Color(0.95, 0.9, 1.0);
   const sack = new Mesh(models.sack.geometry, sackMat);
   sack.scale.set(SACK_SCALE_XZ, SACK_SCALE_Y, SACK_SCALE_XZ);

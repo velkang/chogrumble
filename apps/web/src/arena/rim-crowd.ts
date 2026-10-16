@@ -1,5 +1,5 @@
 // Spectator Chogs peeking over the rim of the sack (their NFT portraits on billboards). They bob,
-// and jump up and cheer when someone gets plucked.
+// and can jump up and cheer for the fighters.
 import { Group, Sprite, SpriteMaterial, SRGBColorSpace, TextureLoader } from 'three';
 import type { Scene, Vector3 } from 'three';
 import { RIM_Y } from './constants';

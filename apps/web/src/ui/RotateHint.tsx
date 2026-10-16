@@ -6,7 +6,7 @@ export function RotateHint() {
           📱
         </div>
         <p className="m-0 font-display text-2xl">Turn your phone sideways</p>
-        <p className="m-0 text-sm text-muted">The rumble plays in landscape.</p>
+        <p className="m-0 text-sm text-muted">The duel plays in landscape. Your fight is paused.</p>
       </div>
     </div>
   );

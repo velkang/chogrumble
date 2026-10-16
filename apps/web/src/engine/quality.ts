@@ -7,7 +7,7 @@ export interface QualitySettings {
   /** Cap on devicePixelRatio; phones with 3x screens don't need 3x pixels in a busy 3D scene. */
   maxPixelRatio: number;
   shadowMapSize: number;
-  /** Real shadows from the 12 fighters; otherwise each gets a cheap blob shadow. */
+  /** Real shadows from the duel fighters; otherwise each gets a cheap blob shadow. */
   fighterShadows: boolean;
   /** Decimated giant, platform hat and a thinner rope. Fixed at load time. */
   lightScenery: boolean;

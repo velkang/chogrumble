@@ -32,16 +32,20 @@ export function StartScreen() {
   const play = useUi((s) => s.play);
   const reroll = useUi((s) => s.reroll);
   return (
-    <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-gradient-to-t from-black/75 via-black/30 to-transparent p-4">
+    <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-black/65 p-4">
       <div className="grid max-w-2xl justify-items-center gap-3 text-center short:gap-2">
         <h1 className="m-0 font-display text-[clamp(30px,6vw,60px)] leading-none font-normal [text-shadow:0_4px_0_#000] short:text-[clamp(24px,5vw,40px)]">
           Chog <span className="text-pink">Sack</span> Rumble
         </h1>
         <p className="m-0 text-sm font-semibold text-fg/85 sm:text-base short:text-xs">
-          Twelve Chogs, one sack, last one standing wins. Pick your fighter.
+          Two Chogs. One champion. Pick your fighter.
         </p>
         {phase === 'loading' ? <p className="m-0 font-extrabold text-muted">Loading the sack…</p> : null}
-        {phase === 'error' ? <p className="m-0 rounded-lg bg-hp-lo/20 px-3 py-2 font-bold text-hp-lo-hi">{error}</p> : null}
+        {phase === 'error' ? <div role="alert" className="grid gap-2">
+          <p className="m-0 rounded-lg bg-hp-lo/20 px-3 py-2 font-bold text-hp-lo-hi">{error}</p>
+          <button type="button" className="duel-secondary" onClick={() => location.reload()}>Reload game</button>
+        </div> : null}
+        <p className="m-0 text-xs font-bold text-muted">1 vs 1 · First to two rounds · Equal stats, unique specials</p>
         {phase === 'ready' ? <WalletPanel card={(c) => <CandidateCard key={c.tokenId} c={c} onPick={play} />} /> : null}
         {phase === 'ready' && candidates.length > 0 ? (
           <>
@@ -59,13 +63,7 @@ export function StartScreen() {
               >
                 🎲 Other Chogs
               </button>
-              <button
-                type="button"
-                onClick={() => play(null)}
-                className="cursor-pointer rounded-full border-2 border-line bg-transparent px-4 py-1.5 text-sm font-extrabold text-muted hover:border-pink hover:text-fg focus-visible:outline-3 focus-visible:outline-fg"
-              >
-                Just watch
-              </button>
+
             </div>
           </>
         ) : null}

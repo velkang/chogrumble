@@ -1,11 +1,7 @@
-// Turns a lobby's entries into a match roster: entrants first, then house Chogs to fill it out.
-import { MAX_FIGHTERS, createRng } from '@chog/sim';
+// Seeded collection sampling for borrowed fighters and AI opponents.
+import { createRng } from '@chog/sim';
 import type { FighterSpec } from '@chog/sim';
-import { CHOGS, chogByToken, toFighter } from './chogs';
-
-/** Matches always have at least this many Chogs; house Chogs fill the gap. */
-export const MIN_ROSTER = 8;
-export const MAX_ROSTER = MAX_FIGHTERS;
+import { CHOGS, toFighter } from './chogs';
 
 /** Real Chogs, drawn at random (by seed) from those not already in the match. */
 export function pickHouseChogs(
@@ -26,19 +22,4 @@ export function pickHouseChogs(
     picks.push(toFighter(c, { house: true }));
   }
   return picks;
-}
-
-/** Entrant token ids (in entry order) plus house Chogs up to MIN_ROSTER. */
-export function buildRoster(entrantTokens: readonly number[], seed: string): FighterSpec[] {
-  if (entrantTokens.length > MAX_ROSTER)
-    throw new Error(`A match holds at most ${MAX_ROSTER} Chogs`);
-  if (new Set(entrantTokens).size !== entrantTokens.length)
-    throw new Error('A Chog was entered twice');
-  const entrants = entrantTokens.map((id) => {
-    const c = chogByToken(id);
-    if (!c) throw new Error(`Unknown Chog token ${id}`);
-    return toFighter(c);
-  });
-  const fill = Math.max(0, MIN_ROSTER - entrants.length);
-  return [...entrants, ...pickHouseChogs(seed, fill, new Set(entrantTokens))];
 }
