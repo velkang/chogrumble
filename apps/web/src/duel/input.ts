@@ -1,23 +1,36 @@
 import type { DuelInput } from '@chog/sim';
-export type DuelControl = keyof DuelInput;
+export type DuelControl = Exclude<keyof DuelInput, 'moveX'>;
 const impulses = new Set<DuelControl>(['jump', 'light', 'heavy', 'special']);
 
 /** Each keyboard key/touch owns its input; releasing one never releases another finger. */
 export function createDuelInput() {
   const held = new Map<string, DuelControl>();
   let pressed: DuelInput = {};
+  let analog: { moveX: number; crouch: boolean } | null = null;
+  let analogJump = false;
   return {
     down(source: string, control: DuelControl) {
       if (held.has(source)) return;
       held.set(source, control);
       if (impulses.has(control)) pressed[control] = true;
     },
+    analog(moveX: number, crouch: boolean, jump: boolean) {
+      analog = { moveX, crouch };
+      if (jump) analogJump = true;
+    },
+    releaseAnalog() { analog = null; analogJump = false; },
     tap(control: DuelControl) { pressed[control] = true; },
     up(source: string) { held.delete(source); },
-    clear() { held.clear(); pressed = {}; },
+    clear() { held.clear(); pressed = {}; analog = null; analogJump = false; },
     take(): DuelInput {
       const input: DuelInput = { ...pressed };
+      if (analogJump) input.jump = true;
+      analogJump = false;
       for (const control of held.values()) if (!impulses.has(control)) input[control] = true;
+      if (analog) {
+        if (!input.left && !input.right) input.moveX = analog.moveX;
+        if (analog.crouch) input.crouch = true;
+      }
       pressed = {};
       return input;
     },

@@ -26,6 +26,24 @@ function attack(m: Duel, input: DuelInput, guard: DuelInput = {}) {
 function charge(m: Duel) { close(m); for (let i = 0; i < 5; i++) { close(m); attack(m, { light: true }); } }
 
 describe('duel movement and state', () => {
+  it('applies proportional analog movement on the ground and in the air, with digital precedence', () => {
+    const full = ready(); const half = ready();
+    step(full, 10, { moveX: -1 }); step(half, 10, { moveX: -0.5 });
+    expect(half.state().fighters[0].x + 2.6).toBeCloseTo((full.state().fighters[0].x + 2.6) / 2);
+    const initial = half.state().fighters[0].x;
+    half.step({ jump: true, moveX: 0.5 }, {});
+    expect(half.state().fighters[0].x - initial).toBeCloseTo(R.walkSpeed * 0.5);
+    const airborne = half.state().fighters[0].x;
+    half.step({ light: true, moveX: 0.5 }, {});
+    half.step({ moveX: 0.5 }, {});
+    expect(half.state().fighters[0].x - airborne).toBeCloseTo(R.walkSpeed * 0.5);
+    const keyed = ready(); step(keyed, 10, { left: true, moveX: 1 });
+    expect(keyed.state().fighters[0].x).toBeCloseTo(full.state().fighters[0].x);
+    const bounded = ready(); step(bounded, 10, { moveX: -9 });
+    expect(bounded.state().fighters[0].x).toBeCloseTo(full.state().fighters[0].x);
+    const invalid = ready(); step(invalid, 10, { moveX: Number.NaN });
+    expect(invalid.state().fighters[0].x).toBe(-2.6);
+  });
   it('validates two distinct fighters, equalizes stats, and isolates snapshots', () => {
     expect(() => createDuel({ roster: [roster[0], roster[0]], seed: '' })).toThrow(/distinct/);
     const m = ready(); const old = m.state();
@@ -239,8 +257,7 @@ describe('rounds and AI', () => {
     close(m); m.step({ light: true }, { light: true }); step(m, 6);
     expect(m.state().finish).toBe('draw'); expect(m.state().wins).toEqual([0, 0]);
   });
-  it('AI waits for observations and is deterministic and legal across seeds', () => {
-    for (let seed = 0; seed < 8; seed++) {
+  it.each(Array.from({ length: 8 }, (_, seed) => seed))('AI waits for observations and is deterministic and legal for seed %i', (seed) => {
       const run = () => {
         const m = createDuel({ roster, seed: String(seed) });
         step(m, R.introFrames);
@@ -258,6 +275,5 @@ describe('rounds and AI', () => {
         return m.state();
       };
       expect(run()).toEqual(run());
-    }
   });
 });

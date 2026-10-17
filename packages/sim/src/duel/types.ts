@@ -4,6 +4,8 @@ export type DuelSide = 0 | 1;
 export type DuelSpecial = 'laser' | 'bubble' | 'puke' | 'coin' | 'dive';
 /** Directions/block are held; jump and attacks are presses, consumed once per tick. */
 export interface DuelInput {
+  /** Horizontal analog movement, clamped to -1..1; digital directions take precedence. */
+  moveX?: number;
   left?: boolean; right?: boolean; crouch?: boolean; jump?: boolean;
   light?: boolean; heavy?: boolean; special?: boolean; block?: boolean;
 }

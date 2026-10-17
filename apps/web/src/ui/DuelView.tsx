@@ -6,11 +6,13 @@ import { useUi } from './store';
 import { specialInfo } from './specials';
 import { MuteButton } from './MuteButton';
 import { FullscreenButton } from './FullscreenButton';
+import { Joystick } from './Joystick';
 
 function Action({ control, label, children, disabled = false }: { control: DuelControl; label: string; children: React.ReactNode; disabled?: boolean }) {
   return <button type="button" className={`duel-action duel-action-${control}`} disabled={disabled} aria-label={label}
     onContextMenu={(e) => e.preventDefault()}
     onPointerDown={(e) => {
+      if (disabled) return;
       e.preventDefault();
       e.currentTarget.setPointerCapture(e.pointerId);
       duelInput.down(`pointer:${e.pointerId}`, control);
@@ -95,17 +97,12 @@ export function DuelView() {
     <div className="duel-announcement" role="status" aria-live="polite">{announcement}</div>
     {combo && combo.until > state.frame && combo.count > 1 && <div className={`duel-combo duel-combo-${combo.side}`} aria-live="polite"><strong>{combo.count}</strong> HIT COMBO</div>}
     {!finished && !state.paused && <div className="duel-controls" aria-label="Fight controls">
-      <div className="duel-pad">
-        <Action control="jump" label="Jump (W or up arrow)" disabled={!fighting}>↑</Action>
-        <Action control="left" label="Move left (A or left arrow)" disabled={!fighting}>←</Action>
-        <Action control="right" label="Move right (D or right arrow)" disabled={!fighting}>→</Action>
-        <Action control="crouch" label="Crouch (S or down arrow)" disabled={!fighting}>↓</Action>
-      </div>
+      <Joystick key={`${state.round}:${state.phase}`} disabled={!fighting} />
       <p className="duel-key-guide">WASD / arrows · J light · K heavy<br />L special · Space block · Esc pause</p>
       <div className="duel-attacks">
-        <Action control="block" label="Hold block (Space)" disabled={!fighting}><span>BLOCK</span><small>HOLD</small></Action>
         <Action control="light" label="Light attack (J)" disabled={!fighting}><span>LIGHT</span><small>J</small></Action>
         <Action control="heavy" label="Heavy attack (K)" disabled={!fighting}><span>HEAVY</span><small>K</small></Action>
+        <Action control="block" label="Hold block (Space)" disabled={!fighting}><span>BLOCK</span><small>HOLD</small></Action>
         <Action control="special" label={`${special.label} (L), costs 50 meter`} disabled={!fighting || state.fighters[0].meter < 50}><span>SPECIAL</span><small>50 METER</small></Action>
       </div>
     </div>}

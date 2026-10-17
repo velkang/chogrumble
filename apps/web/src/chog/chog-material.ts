@@ -109,12 +109,12 @@ export function chogMaterial(base: Material, faces: Faces, look: ChogLook): { ma
   material.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, u);
     sh.vertexShader = sh.vertexShader
-      .replace('#include <common>', '#include <common>\nvarying vec3 vBind; varying vec3 vBindN;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvBind = position; vBindN = normal;');
+      .replace('#include <common>', '#include <common>\nattribute vec3 appearancePosition; varying vec3 vBind; varying vec3 vBindN;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvBind = appearancePosition; vBindN = normal;');
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', FRAGMENT_PARS)
       .replace('#include <map_fragment>', FRAGMENT_MAP);
   };
-  material.customProgramCacheKey = () => 'chog-material-v2';
+  material.customProgramCacheKey = () => 'chog-material-v3';
   return { material, u };
 }

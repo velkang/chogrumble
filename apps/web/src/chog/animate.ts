@@ -1,5 +1,6 @@
 import { POSES, BONES, springAxis, springGains } from './poses';
 import type { Chog } from './chog';
+import type { Pose } from './poses';
 
 const WALK_RATE = 11;
 const GUARD_RATE = 5;
@@ -24,7 +25,7 @@ function stepSprings(f: Chog, dt: number): void {
 /** Walk cycle while moving; otherwise a bounce in guard and a slow breath. */
 function stepIdleMotion(f: Chog, dt: number): void {
   const guarding = f.target === POSES.guard;
-  f.phase += dt * (f.walking ? WALK_RATE : guarding ? GUARD_RATE : IDLE_RATE);
+  f.phase += dt * (f.walking ? WALK_RATE * Math.min(1, Math.abs(f.walking) / 0.65) : guarding ? GUARD_RATE : IDLE_RATE);
   const s = Math.sin(f.phase);
   if (f.walking) {
     // a bouncy hop-run: big leg swing, pumping arms, leaning into it
@@ -33,6 +34,8 @@ function stepIdleMotion(f: Chog, dt: number): void {
     f.B.legR.rotation.x -= s * 0.85 * w;
     f.B.armL.rotation.x -= s * 0.8 * w;
     f.B.armR.rotation.x += s * 0.8 * w;
+    f.B.shinL.rotation.x += Math.max(0, -s) * 0.65 * w;
+    f.B.shinR.rotation.x += Math.max(0, s) * 0.65 * w;
     f.B.spine.rotation.x += 0.22 * w;
     f.B.spine.rotation.z += Math.cos(f.phase) * 0.06 * w;
     f.B.hips.position.y = 0.14 + Math.abs(s) * 0.06 * w;
@@ -54,4 +57,16 @@ function stepIdleMotion(f: Chog, dt: number): void {
 export function updateChog(f: Chog, dt: number): void {
   stepSprings(f, dt);
   stepIdleMotion(f, dt);
+}
+
+/** Apply sampled combat motion immediately. Reset spring velocity so interruption starts here. */
+export function applyPose(f: Chog, pose: Pose): void {
+  for (const b of BONES) {
+    f.cur[b] = [...pose[b]];
+    f.vel[b] = [0, 0, 0];
+    f.B[b].rotation.set(...pose[b], 'YXZ');
+  }
+  f.B.hips.position.y = 0.14;
+  f.B.spine.scale.y = 1;
+  f.body.scale.y = 1;
 }

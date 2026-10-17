@@ -1,14 +1,17 @@
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three';
 import type { PerspectiveCamera, Scene } from 'three';
-import { DUEL_MOVES } from '@chog/sim';
+import { DUEL_MOVES, DUEL_RULES } from '@chog/sim';
 import type { DuelEvent, DuelFighter, DuelState, FighterSpec } from '@chog/sim';
 import type { Models } from '../engine/assets';
 import type { QualitySettings } from '../engine/quality';
 import type { Sound } from '../audio/sound';
 import type { Fx } from '../fx/fx';
 import type { PoseName } from '../chog/poses';
-import { updateChog } from '../chog/animate';
+import { updateChog, applyPose } from '../chog/animate';
+import { sampleAttackPose, combatYaw } from './attack-pose';
+import type { Chog } from '../chog/chog';
 import { singleMaterial } from '../chog/chog';
+import { FIGHTER_SHAPE } from '../chog/fighter-shape';
 import { dressFighter } from '../director/looks';
 import { makeBlobShadow } from '../director/blob-shadow';
 import type { Dressed } from '../director/looks';
@@ -21,17 +24,22 @@ function pose(f: DuelFighter, s: DuelState, side: number): PoseName {
   if (f.stun) return 'hurt';
   const a = f.attack;
   if (!a) return f.y > 0 ? 'flail' : f.crouching ? 'crouch' : 'guard';
-  const wind = a.frame < DUEL_MOVES[a.move].startup - 2;
-  switch (a.move) {
-    case 'light': return wind ? a.chain === 2 ? 'windL' : 'windR' : a.chain === 2 ? 'punchL' : 'punchR';
-    case 'heavy': case 'airHeavy': return wind ? 'windK' : 'kick';
-    case 'sweep': return wind ? 'crouch' : 'sweep';
-    case 'airLight': return 'punchR';
-    case 'laser': return 'laser';
-    case 'coin': return 'punchR';
-    case 'bubble': case 'puke': return 'blow';
-    case 'dive': return wind ? 'windK' : 'nuts';
+  return 'guard';
+}
+
+// Correct only the visual body height; combat roots and trajectories remain in the simulation.
+const sole = new Vector3();
+function groundBody(c: Chog, grounded: boolean): void {
+  c.body.position.y = FIGHTER_SHAPE.lift;
+  if (!grounded) return;
+  c.g.updateMatrixWorld(true);
+  let lowest = Infinity;
+  for (const shin of [c.B.shinL, c.B.shinR]) {
+    sole.set(0, -FIGHTER_SHAPE.soleLength, 0.045);
+    c.body.worldToLocal(shin.localToWorld(sole));
+    lowest = Math.min(lowest, sole.y);
   }
+  c.body.position.y = -lowest * c.body.scale.y;
 }
 
 /** Positions always come from interpolated sim snapshots, never from presentation tweens. */
@@ -45,16 +53,20 @@ export function createDuelPresentation(scene: Scene, camera: PerspectiveCamera, 
     mesh.visible = false; scene.add(mesh); return mesh;
   }));
   let cut = true;
+  const rightHand = [false, false];
+  const facingAngle = (f: DuelFighter, hand: boolean) => combatYaw(f.facing, f.stun || f.hp === 0 ? null : f.attack, hand);
+  const place = (c: Chog, f: DuelFighter, hand: boolean) => { c.g.position.set(f.x, f.y + 0.09, 0); c.g.rotation.y = facingAngle(f, hand); };
+  const pendingHits: { event: Extract<DuelEvent, { type: 'hit' }>; at: Vector3 }[] = [];
   function clearProjectiles() { for (const m of projectiles.values()) scene.remove(m); projectiles.clear(); }
   function disposeCast() {
     cast.forEach((d) => { scene.remove(d.chog.g); singleMaterial(d.chog.mesh).dispose(); d.chog.mesh.skeleton.dispose(); d.dispose(); });
-    cast = []; clearProjectiles(); bursts.flat().forEach((m) => { m.visible = false; });
+    cast = []; pendingHits.length = 0; rightHand.fill(false); clearProjectiles(); bursts.flat().forEach((m) => { m.visible = false; });
   }
   return {
     play(roster: readonly [FighterSpec, FighterSpec], settings: QualitySettings) {
       disposeCast(); cut = true;
       cast = roster.map((f) => {
-        const d = dressFighter(f, models, 2.4);
+        const d = dressFighter(f, models, 2.15);
         const c = d.chog;
         const shadow = makeBlobShadow(); shadow.name = 'duel-shadow'; c.g.add(shadow);
         c.bob = 0.5; c.setPose('guard', 25); scene.add(c.g);
@@ -75,10 +87,24 @@ export function createDuelPresentation(scene: Scene, camera: PerspectiveCamera, 
       for (const e of events) {
         if (e.type === 'hit') {
           const f = state.fighters[e.target];
-          const at = new Vector3(f.x, f.y + 1.3, 0.3);
-          if (e.blocked) { sound.block(); fx.puff(at, 3, 0.7); }
-          else { sound.hit(e.damage >= 12); fx.impact(at, e.damage >= 12); }
+          const at = new Vector3(f.x, f.y + 1.3, 0.25);
+          const attacker = cast[e.side]?.chog;
+          if (attacker && ['light', 'heavy', 'sweep', 'airLight', 'airHeavy'].includes(e.move)) {
+            place(attacker, { ...state.fighters[e.side], stun: 0, hp: 1, attack: { move: e.move, frame: DUEL_MOVES[e.move].startup, chain: 1, connected: true, resolved: true } }, rightHand[e.side]!);
+            applyPose(attacker, sampleAttackPose({ move: e.move, frame: DUEL_MOVES[e.move].startup }, rightHand[e.side]!));
+            if (state.fighters[e.side].crouching || e.move === 'sweep') attacker.body.scale.y = 0.74;
+            groundBody(attacker, state.fighters[e.side].y === 0);
+            attacker.g.updateMatrixWorld(true);
+            const kick = e.move === 'heavy' || e.move === 'airHeavy' || e.move === 'sweep';
+            const limb = kick ? attacker.B.shinR : rightHand[e.side] ? attacker.B.forearmR : attacker.B.forearmL;
+            at.copy(limb.localToWorld(kick ? new Vector3(0, -FIGHTER_SHAPE.soleLength, 0.045) : new Vector3((rightHand[e.side] ? -1 : 1) * FIGHTER_SHAPE.fistLength, 0, 0)));
+            at.x = Math.max(f.x - 0.55, Math.min(f.x + 0.55, at.x));
+            at.y = Math.max(f.y + 0.1, Math.min(f.y + (f.crouching ? 1.15 : 2.15), at.y));
+            at.z = Math.max(0.1, Math.min(0.45, at.z));
+          }
+          pendingHits.push({ event: e, at });
         } else if (e.type === 'attack') {
+          if (e.move === 'light' || e.move === 'airLight') rightHand[e.side] = !rightHand[e.side];
           if (e.move === 'laser') sound.zap();
           else if (e.move === 'bubble' || e.move === 'puke') sound.splat();
           else sound.whoosh();
@@ -98,13 +124,17 @@ export function createDuelPresentation(scene: Scene, camera: PerspectiveCamera, 
         c.g.position.set(x, y + 0.09, 0);
         const shadow = c.g.getObjectByName('duel-shadow');
         if (shadow) shadow.position.y = (0.06 - c.g.position.y) / c.g.scale.y;
-        c.g.rotation.y = f.facing * Math.PI / 2;
-        c.walking = !f.attack && !f.stun && f.y === 0 && Math.abs(f.x - p.x) > 0.015 ? 0.65 : 0;
+        c.g.rotation.y = facingAngle(f, rightHand[side]!);
+        c.walking = !f.attack && !f.stun && !f.blocking && !f.blockstun && f.y === 0 ? Math.min(0.65, Math.abs(f.x - p.x) / DUEL_RULES.walkSpeed * 0.65) : 0;
         c.setPose(pose(f, state, side), f.attack || f.stun ? 32 : 18);
         c.face(f.hp === 0 ? 'ko' : f.stun ? 'hurt' : f.attack?.move === 'laser' ? 'laser' : 'normal');
         c.body.rotation.z = f.hp === 0 ? -f.facing * Math.PI / 2 : 0;
-        updateChog(c, dt);
-        if (f.crouching) c.body.scale.y = 0.62;
+        if (f.attack && f.hp > 0 && !f.stun) {
+          const frame = f.attack.frame + (state.paused ? 0 : alpha);
+          applyPose(c, sampleAttackPose({ ...f.attack, frame }, rightHand[side]!));
+        } else updateChog(c, dt);
+        if (f.crouching || f.attack?.move === 'sweep') c.body.scale.y = 0.74;
+        groundBody(c, f.y === 0 && f.hp > 0);
         const attack = f.attack;
         const spraying = attack?.move === 'puke' && attack.frame >= DUEL_MOVES.puke.startup && attack.frame < DUEL_MOVES.puke.startup + DUEL_MOVES.puke.active;
         bursts[side]!.forEach((mesh, i) => {
@@ -112,6 +142,10 @@ export function createDuelPresentation(scene: Scene, camera: PerspectiveCamera, 
           mesh.position.set(x + f.facing * (0.8 + i * 0.27), y + 1.25 - i * 0.07, 0.05);
           mesh.scale.set(1.5, 0.65 + i * 0.13, 0.7);
         });
+      }
+      for (const { event: e, at } of pendingHits.splice(0)) {
+        if (e.blocked) { sound.block(); fx.puff(at, 3, 0.7); }
+        else { sound.hit(e.damage >= 12); fx.impact(at, e.damage >= 12); }
       }
       const live = new Set(state.projectiles.map((p) => p.id));
       for (const [id, mesh] of projectiles) if (!live.has(id)) { scene.remove(mesh); projectiles.delete(id); }

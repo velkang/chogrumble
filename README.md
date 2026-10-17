@@ -28,10 +28,12 @@ pnpm deploy
 - WASD or arrows: move, jump, crouch.
 - J: light; K: heavy; L: trait special; hold Space: block.
 - Escape: pause. Resume explicitly after switching tabs or rotating your phone.
-- Landscape touch controls support movement and actions simultaneously.
+- Landscape touch controls use an analog joystick: drag farther to walk faster, up to jump, down to crouch. Jump rearms when the stick returns toward center. Action buttons support another finger independently.
 
 First to two round wins takes the match. Each round lasts 60 seconds; timeout favors the healthier fighter. Drawn rounds replay. All Chogs have 100 HP and equal basic attacks. Their traits choose their appearance and special.
 
 Standing block stops normal and jumping attacks. Crouching block stops normal attacks and sweeps. Jumping attacks beat crouch block; sweeps beat standing block. Blocking works only on the ground and from the front. Whiffs leave you vulnerable during recovery.
 
 Confirm a light hit, press light again, then heavy for a three-hit combo. Attack input buffers last seven frames (about 117 ms); failed or blocked hits cannot cancel recovery. Specials cost 50 meter; basic hits grant 10 to the attacker and 5 to the defender. Meter resets every round.
+
+For visual checks, open `?capture&seed=1` in development. The capture toolbar steps the clock or starts a punch, kick, sweep, or jumping attack through normal combat inputs. Roster and AI seeds repeat on reload. Fighter-only limb proportions preserve the original spectator model and appearance coordinates.

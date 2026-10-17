@@ -1,4 +1,4 @@
-// Dresses a fighter from its NFT traits: faces, fur, shirt, headwear and aura.
+// Dresses a fighter from its NFT traits: faces, fur, shirt and headwear.
 import type { FighterSpec } from '@chog/sim';
 import type { Models } from '../engine/assets';
 import { makeChog } from '../chog/chog';
@@ -7,7 +7,6 @@ import { createFaceSet, disposeFaceSet } from '../chog/face-set';
 import { buildHeadwear, disposeHeadwear } from '../chog/headwear';
 import type { Faces } from '../chog/faces';
 import { lookOf } from '../looks/look-of';
-import { makeAura } from './aura';
 
 export interface Dressed {
   chog: Chog;
@@ -21,6 +20,7 @@ export function dressFighter(spec: FighterSpec, models: Models, scale: number): 
   const chog = makeChog(models.chogLod, faces, {
     name: spec.name,
     scale,
+    fighter: true,
     face: 'normal',
     furFinish: look.fur.finish,
     ...(look.fur.color !== null ? { fur: look.fur.color } : {}),
@@ -31,14 +31,11 @@ export function dressFighter(spec: FighterSpec, models: Models, scale: number): 
     chog.B.head.add(hat);
     chog.hat = hat;
   }
-  const aura = look.aura === null ? null : makeAura(look.aura);
-  if (aura) chog.g.add(aura);
   return {
     chog,
     dispose() {
       disposeFaceSet(faces);
       if (hat) disposeHeadwear(hat);
-      if (aura) (aura.material as { dispose(): void }).dispose();
     },
   };
 }

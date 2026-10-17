@@ -91,15 +91,18 @@ button:focus-visible { outline: 3px solid var(--color-fg); outline-offset: 3px; 
 .duel-combo strong { font-size: 40px; color: var(--color-gold); }
 .duel-combo-0 { left: 5%; }.duel-combo-1 { right: 5%; }
 .duel-controls { position: absolute; inset: auto max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); display: flex; justify-content: space-between; align-items: end; gap: 12px; }
-.duel-pad { display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 44px); gap: 3px; }
+.duel-joystick { position: relative; width: 136px; height: 136px; flex: 0 0 auto; pointer-events: auto; touch-action: none; border: 2px solid #f3dcc080; border-radius: 50%; color: var(--color-frame); background: #1a0f26a8; box-shadow: inset 0 2px 10px #0005; }
+.duel-joystick[aria-disabled="true"] { opacity: .4; }
+.duel-joystick:focus-visible { outline: 3px solid var(--color-fg); outline-offset: 4px; }
+.duel-joystick-directions { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .7; pointer-events: none; }
+.duel-joystick-thumb { position: absolute; left: calc(50% - 24px); top: calc(50% - 24px); width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--color-frame); background: var(--color-chip-edge); box-shadow: 0 3px 8px #0006; pointer-events: none; }
 .duel-action { pointer-events: auto; touch-action: none; cursor: pointer; border: 2px solid #f3dcc080; border-radius: 12px; color: var(--color-fg); background: #1a0f26d9; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; padding: 0; }
 .duel-action:active { background: var(--color-pink); color: var(--color-ink); }
 .duel-action:disabled { opacity: .4; cursor: default; }
-.duel-action-jump { grid-area: 1/2; }.duel-action-left { grid-area: 2/1; }.duel-action-right { grid-area: 2/3; }.duel-action-crouch { grid-area: 3/2; }
-.duel-pad .duel-action { font-size: 24px; }
-.duel-attacks { display: grid; grid-template-columns: repeat(4, 64px); gap: 8px; padding-bottom: 12px; }
+.duel-attacks { display: grid; grid-template-columns: repeat(2, 64px); gap: 8px; padding-right: 16px; }
 .duel-attacks .duel-action { min-height: 64px; border-radius: 50%; }
 .duel-attacks span { font-size: 10px; }.duel-attacks small { font-size: 9px; opacity: .85; }
+.duel-action-light, .duel-action-heavy { transform: translateX(16px); }
 .duel-action-light { border-color: var(--color-pink); }.duel-action-heavy { border-color: var(--color-foe); }.duel-action-special { border-color: var(--color-gold); }
 .duel-key-guide { text-align: center; font-size: 11px; font-weight: 800; line-height: 1.7; color: var(--color-fg); text-shadow: 0 1px 4px #000; }
 .duel-overlay { pointer-events: auto; position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; padding: 16px; background: #0f0a18b3; }
@@ -118,8 +121,8 @@ button:focus-visible { outline: 3px solid var(--color-fg); outline-offset: 3px; 
   .duel-health { height: 19px; }.duel-health > span { font-size: 11px; }.duel-name { font-size: 11px; margin-bottom: 2px; }
   .duel-clock strong { font-size: 38px; }.duel-rounds small { font-size: 9px; }.duel-rounds { padding-top: 3px; }
   .duel-tools { top: 72px; }.duel-announcement { top: 25%; font-size: 36px; }
-  .duel-pad { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); gap: 2px; }
-  .duel-pad .duel-action { min-height: 44px; }.duel-attacks { grid-template-columns: repeat(4, 56px); gap: 6px; padding-bottom: 4px; }.duel-attacks .duel-action { min-height: 56px; }
+  .duel-joystick { width: 116px; height: 116px; }
+  .duel-attacks { grid-template-columns: repeat(2, 56px); gap: 6px; }.duel-attacks .duel-action { min-height: 56px; }
   .duel-dialog { grid-template-columns: auto 1fr; gap: 8px 16px; padding: 16px; width: min(100%, 440px); }.duel-dialog h1, .duel-dialog p, .duel-score { grid-column: 1 / -1; }.duel-dialog h1 { font-size: 32px; }.duel-winner { width: 64px; height: 64px; grid-row: 3 / 5; }.duel-dialog .duel-primary, .duel-dialog .duel-secondary { grid-column: 2; width: 100%; }.duel-score { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .duel-health > div { transition: none; } }

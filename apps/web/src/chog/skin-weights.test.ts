@@ -23,13 +23,20 @@ describe('vertexWeights', () => {
   });
 
   it('splits arms by side: +x is armL, -x is armR', () => {
-    expect(dominant(vertexWeights(0.4, 0.45))).toBe(BONE_INDEX.armL);
-    expect(dominant(vertexWeights(-0.4, 0.45))).toBe(BONE_INDEX.armR);
+    expect(dominant(vertexWeights(0.4, 0.45))).toBe(BONE_INDEX.forearmL);
+    expect(dominant(vertexWeights(-0.4, 0.45))).toBe(BONE_INDEX.forearmR);
+  });
+
+  it('keeps upper and lower limbs separate from torso and head', () => {
+    expect(dominant(vertexWeights(0.295, 0.45))).toBe(BONE_INDEX.armL);
+    expect(dominant(vertexWeights(0.1, 0.11))).toBe(BONE_INDEX.legL);
+    expect(vertexWeights(0, 0.8).slice(8)).toEqual([0, 0, 0, 0]);
+    expect(vertexWeights(0, 0.3).slice(8)).toEqual([0, 0, 0, 0]);
   });
 
   it('splits legs by side near the floor', () => {
-    expect(dominant(vertexWeights(0.1, 0.02))).toBe(BONE_INDEX.legL);
-    expect(dominant(vertexWeights(-0.1, 0.02))).toBe(BONE_INDEX.legR);
+    expect(dominant(vertexWeights(0.1, 0.02))).toBe(BONE_INDEX.shinL);
+    expect(dominant(vertexWeights(-0.1, 0.02))).toBe(BONE_INDEX.shinR);
   });
 
   it('gives the torso to hips low down and spine higher up', () => {
@@ -59,7 +66,7 @@ describe('computeSkinWeights', () => {
   it('lists the strongest bone first', () => {
     const { indices } = computeSkinWeights(positions(pts));
     expect(indices[0]).toBe(BONE_INDEX.head);
-    expect(indices[4]).toBe(BONE_INDEX.armL);
-    expect(indices[8]).toBe(BONE_INDEX.legR);
+    expect(indices[4]).toBe(BONE_INDEX.forearmL);
+    expect(indices[8]).toBe(BONE_INDEX.shinR);
   });
 });

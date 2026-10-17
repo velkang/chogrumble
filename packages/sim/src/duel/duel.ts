@@ -41,6 +41,8 @@ export function createDuel(opts: { roster: readonly [FighterSpec, FighterSpec]; 
 
   function control(side: DuelSide, input: DuelInput) {
     const f = s.fighters[side];
+    const analog = Number.isFinite(input.moveX) ? Math.max(-1, Math.min(1, input.moveX!)) : 0;
+    const movement = input.left || input.right ? Number(!!input.right) - Number(!!input.left) : analog;
     const press = input.special ? 'special' : input.light ? 'light' : input.heavy ? 'heavy' : null;
     if (press) buffers[side] = { move: press, until: s.frame + R.inputBufferFrames };
     const buffered = buffers[side];
@@ -58,7 +60,7 @@ export function createDuel(opts: { roster: readonly [FighterSpec, FighterSpec]; 
         buffers[side] = null;
       }
       // Air direction remains responsive, but attacks never walk automatically toward targets.
-      if (f.y > 0) f.x = clampX(f.x + ((input.right ? 1 : 0) - (input.left ? 1 : 0)) * R.walkSpeed);
+      if (f.y > 0) f.x = clampX(f.x + movement * R.walkSpeed);
       return;
     }
     f.blocking = f.y === 0 && !!input.block;
@@ -70,7 +72,7 @@ export function createDuel(opts: { roster: readonly [FighterSpec, FighterSpec]; 
       else move = f.y > 0 ? (b.move === 'light' ? 'airLight' : 'airHeavy') : b.move === 'heavy' && f.crouching ? 'sweep' : b.move;
       if (move && !f.blocking) { start(side, move); buffers[side] = null; }
     }
-    if (!f.attack && !f.blocking && !f.crouching) f.x = clampX(f.x + ((input.right ? 1 : 0) - (input.left ? 1 : 0)) * R.walkSpeed);
+    if (!f.attack && !f.blocking && !f.crouching) f.x = clampX(f.x + movement * R.walkSpeed);
   }
 
   function physics() {

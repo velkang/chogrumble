@@ -10,9 +10,13 @@ export const BONE_INDEX = {
   armR: 5, // -x side
   legL: 6, // +x side
   legR: 7, // -x side
+  forearmL: 8,
+  forearmR: 9,
+  shinL: 10,
+  shinR: 11,
 } as const;
 
-const BONE_COUNT = 8;
+const BONE_COUNT = Object.keys(BONE_INDEX).length;
 const INFLUENCES = 4;
 
 export function smoothstep(a: number, b: number, x: number): number {
@@ -20,7 +24,7 @@ export function smoothstep(a: number, b: number, x: number): number {
   return t * t * (3 - 2 * t);
 }
 
-/** Raw (unnormalized) weight for each of the 8 bones at a model-space vertex. */
+/** Raw (unnormalized) weight for each bone at a model-space vertex. */
 export function vertexWeights(x: number, y: number): number[] {
   const ax = Math.abs(x);
   const w = new Array<number>(BONE_COUNT).fill(0);
@@ -34,10 +38,18 @@ export function vertexWeights(x: number, y: number): number[] {
   w[BONE_INDEX.spine] = body * spine;
   w[BONE_INDEX.hips] = body * (1 - spine);
   w[BONE_INDEX.head] = head;
-  w[BONE_INDEX.armL] = x > 0 ? arm : 0;
-  w[BONE_INDEX.armR] = x > 0 ? 0 : arm;
-  w[BONE_INDEX.legL] = leg * side;
-  w[BONE_INDEX.legR] = leg * (1 - side);
+  const forearm = smoothstep(0.31, 0.37, ax);
+  const shin = 1 - smoothstep(0.045, 0.095, y);
+  const leftArm = x > 0 ? arm : 0;
+  const rightArm = x > 0 ? 0 : arm;
+  w[BONE_INDEX.armL] = leftArm * (1 - forearm);
+  w[BONE_INDEX.armR] = rightArm * (1 - forearm);
+  w[BONE_INDEX.forearmL] = leftArm * forearm;
+  w[BONE_INDEX.forearmR] = rightArm * forearm;
+  w[BONE_INDEX.legL] = leg * side * (1 - shin);
+  w[BONE_INDEX.legR] = leg * (1 - side) * (1 - shin);
+  w[BONE_INDEX.shinL] = leg * side * shin;
+  w[BONE_INDEX.shinR] = leg * (1 - side) * shin;
   return w;
 }
 

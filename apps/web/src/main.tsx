@@ -53,7 +53,8 @@ async function boot() {
   let requestId = 0;
   let rerollId = 0;
   const portrait = matchMedia('(orientation: portrait) and (max-width: 1023px)');
-  const freshSeed = () => `duel-${crypto.randomUUID()}`;
+  let captureSeed = 0;
+  const freshSeed = () => CAPTURE ? `capture-${params.get('seed') ?? '1'}-${captureSeed++}` : `duel-${crypto.randomUUID()}`;
   const pause = () => {
     duelInput.clear(); accumulator = 0;
     if (!duel || duel.state().phase === 'matchResult') return;
@@ -145,6 +146,7 @@ async function boot() {
         previous = current;
         const result = duel.step(duelInput.take());
         current = result.state;
+        if (previous.phase !== current.phase) duelInput.clear();
         presentation.events(result.events, current);
         for (const e of result.events) if (e.type === 'hit' && !e.blocked) duelUi.setState({ combo: { side: e.side, count: e.combo, until: current.frame + 65 } });
         duelUi.setState({ state: current });
@@ -165,6 +167,32 @@ async function boot() {
   const w = window as Window & { __ready?: boolean; __step?: (dt: number) => void; __watch?: (seed: string, token?: number) => Promise<void>; __dbg?: () => unknown };
   w.__ready = true; w.__step = frame; w.__watch = (seed, token) => start(seed, token ?? null);
   w.__dbg = () => ({ duel, state: current, view, quality });
+  if (CAPTURE && import.meta.env.DEV) {
+    // Small manual controls make the existing capture clock usable without a console.
+    const controls = document.createElement('div');
+    controls.className = 'pointer-events-auto absolute bottom-1 left-1/2 z-40 flex w-[60vw] flex-wrap justify-center -translate-x-1/2 gap-1';
+    controls.setAttribute('aria-label', 'Capture clock');
+    for (const [label, seconds] of [['Step frame', 1 / 60 + 1e-6], ['Step 0.1s', 0.1]] as const) {
+      const button = document.createElement('button');
+      button.type = 'button'; button.textContent = label; button.className = 'duel-secondary'; button.style.padding = '6px 8px'; button.style.fontSize = '12px';
+      button.onclick = () => { frame(seconds); stage.focus({ preventScroll: true }); };
+      controls.append(button);
+    }
+    for (const [label, inputs] of [
+      ['Punch', ['light']], ['Kick', ['heavy']], ['Sweep', ['crouch', 'heavy']],
+      ['Air punch', ['jump', 'light']], ['Air kick', ['jump', 'heavy']],
+    ] as const) {
+      const button = document.createElement('button');
+      button.type = 'button'; button.textContent = label; button.className = 'duel-secondary'; button.style.padding = '6px 8px'; button.style.fontSize = '12px';
+      button.onclick = () => {
+        if (current?.phase !== 'fight' || current.paused) return;
+        inputs.forEach((input) => duelInput.tap(input));
+        frame(1 / 60 + 1e-6); stage.focus({ preventScroll: true });
+      };
+      controls.append(button);
+    }
+    byId('ui').append(controls); frame(0);
+  }
   if (!CAPTURE) {
     let last = performance.now();
     const loop = (now: number) => { frame((now - last) / 1000); last = now; requestAnimationFrame(loop); };
